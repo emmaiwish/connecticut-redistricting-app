@@ -169,9 +169,80 @@ def build_popdensity_geojson():
             f["properties"]["pop_max"] = 1
     return json.dumps(geo)
 
+# --- Non-White / White Population GeoJSON (built once at startup) ---
+def build_race_geojson():
+    geo = copy.deepcopy(towns_geojson)
+    if (
+        demo_df is not None
+        and "VAP_White_20" in demo_df.columns
+        and "VAP_NonWhite_20" in demo_df.columns
+    ):
+        lookup = {}
+        for _, row in demo_df.iterrows():
+            muni = row["municipality"].strip().upper()
+            white = pd.to_numeric(row.get("VAP_White_20", 0), errors="coerce") or 0
+            nonwhite = pd.to_numeric(row.get("VAP_NonWhite_20", 0), errors="coerce") or 0
+            total = white + nonwhite
+            pct_nonwhite = round((nonwhite / total) * 100, 2) if total > 0 else 0
+            lookup[muni] = {
+                "pct_nonwhite": pct_nonwhite,
+                "white": int(white),
+                "nonwhite": int(nonwhite),
+                "total": int(total),
+            }
+        for f in geo["features"]:
+            name = f["properties"].get(town_name_field, "").strip().upper()
+            info = lookup.get(name, {"pct_nonwhite": 0, "white": 0, "nonwhite": 0, "total": 0})
+            f["properties"]["pct_nonwhite"] = info["pct_nonwhite"]
+            f["properties"]["vap_white"] = info["white"]
+            f["properties"]["vap_nonwhite"] = info["nonwhite"]
+            f["properties"]["vap_total"] = info["total"]
+    else:
+        for f in geo["features"]:
+            f["properties"]["pct_nonwhite"] = 0
+            f["properties"]["vap_white"] = 0
+            f["properties"]["vap_nonwhite"] = 0
+            f["properties"]["vap_total"] = 0
+    return json.dumps(geo)
+
+
+# --- 2018 Governor Vote GeoJSON (built once at startup) ---
+def build_gov18_geojson():
+    geo = copy.deepcopy(towns_geojson)
+    if (
+        demo_df is not None
+        and "Vote_Gov_D_18" in demo_df.columns
+        and "Vote_Gov_R_18" in demo_df.columns
+    ):
+        lookup = {}
+        for _, row in demo_df.iterrows():
+            muni = row["municipality"].strip().upper()
+            d = pd.to_numeric(row.get("Vote_Gov_D_18", 0), errors="coerce") or 0
+            r = pd.to_numeric(row.get("Vote_Gov_R_18", 0), errors="coerce") or 0
+            total = d + r
+            lean = round((d - r) / total, 4) if total > 0 else 0
+            diff = int(d - r)
+            lookup[muni] = {"lean": lean, "diff": diff, "dem": int(d), "rep": int(r)}
+        for f in geo["features"]:
+            name = f["properties"].get(town_name_field, "").strip().upper()
+            info = lookup.get(name, {"lean": 0, "diff": 0, "dem": 0, "rep": 0})
+            f["properties"]["gov_lean"] = info["lean"]
+            f["properties"]["gov_diff"] = info["diff"]
+            f["properties"]["gov_dem"] = info["dem"]
+            f["properties"]["gov_rep"] = info["rep"]
+    else:
+        for f in geo["features"]:
+            f["properties"]["gov_lean"] = 0
+            f["properties"]["gov_diff"] = 0
+            f["properties"]["gov_dem"] = 0
+            f["properties"]["gov_rep"] = 0
+    return json.dumps(geo)
+
 
 heatmap_geojson_str = build_heatmap_geojson()
 popdensity_geojson_str = build_popdensity_geojson()
+race_geojson_str = build_race_geojson()
+gov18_geojson_str = build_gov18_geojson()
 
 # Serialize static data once at module load
 _demo_lookup_json = json.dumps(build_demo_tooltip_lookup())
@@ -246,10 +317,14 @@ app_ui = ui.page_fillable(
             #map  { width: 100%; height: 100%; min-height: 700px; }
             #heatmap { width: 100%; height: 100%; }
             #popdensitymap { width: 100%; height: 100%; }
+            #racemap { width: 100%; height: 100%; }
+            #gov18map { width: 100%; height: 100%; }
             body { margin: 0; }
 
             .tab-pane[data-value="Voter Registration Heatmap"],
-            .tab-pane[data-value="Population Map"] {
+            .tab-pane[data-value="Population Map"] 
+            .tab-pane[data-value="Non-White Population"],
+            .tab-pane[data-value="2018 Governor Vote"] {
                 overflow: visible !important;
                 height: calc(100vh - 80px);
             }
@@ -523,13 +598,33 @@ app_ui = ui.page_fillable(
                 class_="heatmap-wrapper",
             ),
         ),
-        # ============================================================
+         # ============================================================
         # TAB 3 – Population Map
         # ============================================================
         ui.nav_panel(
             "Population Map",
             ui.div(
                 ui.output_ui("popdensity_ui"),
+                class_="heatmap-wrapper",
+            ),
+        ),
+        # ============================================================
+        # TAB 4 – Non-White Population Percent
+        # ============================================================
+        ui.nav_panel(
+            "Non-White Population",
+            ui.div(
+                ui.output_ui("race_ui"),
+                class_="heatmap-wrapper",
+            ),
+        ),
+        # ============================================================
+        # TAB 5 – 2018 Governor Vote
+        # ============================================================
+        ui.nav_panel(
+            "2018 Governor Vote",
+            ui.div(
+                ui.output_ui("gov18_ui"),
                 class_="heatmap-wrapper",
             ),
         ),
@@ -1040,6 +1135,233 @@ def server(input, output, session):
         </script>
         """
         return ui.HTML(popdensity_html)
+
+    # ----------------------------------------------------------------
+    # Non-White / White Population Map
+    # ----------------------------------------------------------------
+    @output
+    @render.ui
+    def race_ui():
+        town_field = town_name_field
+
+        race_html = f"""
+        <div id="racemap" style="width:100%;height:calc(100vh - 90px);"></div>
+        <script>
+        (function() {{
+            if (window._ctRaceMap) {{
+                window._ctRaceMap.remove();
+                window._ctRaceMap = null;
+            }}
+
+            var map = L.map('racemap', {{ zoomControl: true }}).setView([41.6, -72.7], 8);
+            window._ctRaceMap = map;
+
+            L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 19,
+                opacity: 0.25
+            }}).addTo(map);
+
+            var townField   = "{town_field}";
+            var geojsonData = {race_geojson_str};
+
+            var pctValues = geojsonData.features
+                .map(function(f) {{ return f.properties.pct_nonwhite || 0; }})
+                .filter(function(v) {{ return v > 0; }});
+            var pctMin = Math.min.apply(null, pctValues);
+            var pctMax = Math.max.apply(null, pctValues);
+
+            function pctToColor(pct) {{
+                if (pctMax === pctMin) return 'rgb(0,90,50)';
+                var normRaw = (pct - pctMin) / (pctMax - pctMin);
+                var t = Math.sqrt(Math.max(0, Math.min(1, normRaw)));
+                var r = Math.round(229 + (0   - 229) * t);
+                var g = Math.round(245 + (90  - 245) * t);
+                var b = Math.round(224 + (50  - 224) * t);
+                return 'rgb(' + r + ',' + g + ',' + b + ')';
+            }}
+
+            var geojsonLayer = L.geoJSON(geojsonData, {{
+                style: function(feature) {{
+                    var pct = feature.properties.pct_nonwhite || 0;
+                    return {{
+                        color: "#666",
+                        weight: 0.8,
+                        fillColor: pctToColor(pct),
+                        fillOpacity: 0.88
+                    }};
+                }},
+                onEachFeature: function(feature, layer) {{
+                    var name     = feature.properties[townField] || "Unknown";
+                    var pct      = feature.properties.pct_nonwhite || 0;
+                    var white    = feature.properties.vap_white || 0;
+                    var nonwhite = feature.properties.vap_nonwhite || 0;
+
+                    var tipHtml =
+                        '<div style="font-weight:700;font-size:1em;margin-bottom:3px">' + name + '</div>' +
+                        '<div style="font-size:0.9em;color:#444">Non-White VAP: <strong>' + pct.toFixed(1) + '%</strong></div>' +
+                        '<div style="font-size:0.85em;color:#666;margin-top:2px">' +
+                            nonwhite.toLocaleString() + ' non-white / ' + white.toLocaleString() + ' white' +
+                        '</div>';
+
+                    layer.bindTooltip(tipHtml, {{sticky: true}});
+                    layer.on('mouseover', function(e) {{
+                        e.target.setStyle({{ weight: 2, color: '#222', fillOpacity: 0.98 }});
+                    }});
+                    layer.on('mouseout', function(e) {{
+                        geojsonLayer.resetStyle(e.target);
+                    }});
+                }}
+            }}).addTo(map);
+
+            map.fitBounds(geojsonLayer.getBounds());
+
+            var legend = L.control({{position: 'bottomright'}});
+            legend.onAdd = function() {{
+                var div = L.DomUtil.create('div');
+                div.style.cssText =
+                    'background:white;padding:10px 14px;border-radius:6px;' +
+                    'box-shadow:0 2px 10px rgba(0,0,0,0.4);font-size:12px;' +
+                    'line-height:1.5;min-width:200px;z-index:9999;position:relative;';
+                div.innerHTML =
+                    '<div style="font-weight:700;margin-bottom:8px;font-size:13px">2020 Non-White VAP %</div>' +
+                    '<div style="height:14px;width:170px;border-radius:3px;margin-bottom:4px;' +
+                         'background:linear-gradient(to right,#e5f5e0,#005a32);' +
+                         'border:1px solid rgba(0,0,0,0.1)"></div>' +
+                    '<div style="display:flex;justify-content:space-between;width:170px;font-size:10px;color:#666">' +
+                         '<span>Lower</span><span>Higher</span></div>' +
+                    '<div style="margin-top:6px;font-size:10px;color:#888">Range: ' +
+                         pctMin.toFixed(1) + '% \\u2013 ' + pctMax.toFixed(1) + '%</div>';
+                return div;
+            }};
+            legend.addTo(map);
+        }})();
+        </script>
+        """
+        return ui.HTML(race_html)
+
+    # ----------------------------------------------------------------
+    # 2018 Governor Vote Map
+    # ----------------------------------------------------------------
+    @output
+    @render.ui
+    def gov18_ui():
+        town_field = town_name_field
+
+        gov18_html = f"""
+        <div id="gov18map" style="width:100%;height:calc(100vh - 90px);"></div>
+        <script>
+        (function() {{
+            if (window._ctGov18Map) {{
+                window._ctGov18Map.remove();
+                window._ctGov18Map = null;
+            }}
+
+            var map = L.map('gov18map', {{ zoomControl: true }}).setView([41.6, -72.7], 8);
+            window._ctGov18Map = map;
+
+            L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 19,
+                opacity: 0.30
+            }}).addTo(map);
+
+            var townField   = "{town_field}";
+            var geojsonData = {gov18_geojson_str};
+
+            function leanToColor(lean) {{
+                lean = Math.max(-1, Math.min(1, lean));
+                var r, g, b;
+                if (lean < 0) {{
+                    var t = -lean;
+                    r = Math.round(255 + (204 - 255) * t);
+                    g = Math.round(255 + (  0 - 255) * t);
+                    b = Math.round(255 + (  0 - 255) * t);
+                }} else if (lean > 0) {{
+                    var t = lean;
+                    r = Math.round(255 + (  0 - 255) * t);
+                    g = Math.round(255 + ( 51 - 255) * t);
+                    b = Math.round(255 + (204 - 255) * t);
+                }} else {{
+                    r = 255; g = 255; b = 255;
+                }}
+                return 'rgb(' + r + ',' + g + ',' + b + ')';
+            }}
+
+            var geojsonLayer = L.geoJSON(geojsonData, {{
+                style: function(feature) {{
+                    return {{
+                        color: "#888",
+                        weight: 0.8,
+                        fillColor: leanToColor(feature.properties.gov_lean || 0),
+                        fillOpacity: 0.88
+                    }};
+                }},
+                onEachFeature: function(feature, layer) {{
+                    var name  = feature.properties[townField] || "Unknown";
+                    var lean  = feature.properties.gov_lean || 0;
+                    var diff  = feature.properties.gov_diff || 0;
+                    var pct   = Math.abs(lean * 100).toFixed(1);
+                    var party = lean > 0 ? "Dem" : lean < 0 ? "Rep" : "Tied";
+
+                    var absDiff = Math.abs(diff);
+                    var diffFormatted = absDiff.toLocaleString();
+                    var diffLabel = "";
+                    if (diff > 0) {{
+                        diffLabel = '+' + diffFormatted + ' Democrat votes';
+                    }} else if (diff < 0) {{
+                        diffLabel = '+' + diffFormatted + ' Republican votes';
+                    }} else {{
+                        diffLabel = 'Even';
+                    }}
+
+                    var tipHtml =
+                        '<div style="font-weight:700;font-size:1em;margin-bottom:3px">' + name + '</div>' +
+                        '<div style="font-size:0.9em;color:#444">' +
+                            party + (lean !== 0 ? ' +' + pct + '%' : '') +
+                        '</div>' +
+                        '<div style="font-size:0.85em;color:#666;margin-top:2px">' + diffLabel + '</div>';
+
+                    layer.bindTooltip(tipHtml, {{sticky: true}});
+                    layer.on('mouseover', function(e) {{
+                        e.target.setStyle({{ weight: 2, color: '#333', fillOpacity: 0.98 }});
+                    }});
+                    layer.on('mouseout', function(e) {{
+                        geojsonLayer.resetStyle(e.target);
+                    }});
+                }}
+            }}).addTo(map);
+
+            map.fitBounds(geojsonLayer.getBounds());
+
+            var legend = L.control({{position: 'bottomright'}});
+            legend.onAdd = function() {{
+                var div = L.DomUtil.create('div');
+                div.style.cssText =
+                    'background:white;padding:10px 14px;border-radius:6px;' +
+                    'box-shadow:0 2px 10px rgba(0,0,0,0.4);font-size:12px;' +
+                    'line-height:1.5;min-width:200px;z-index:9999;position:relative;';
+                div.innerHTML =
+                    '<div style="font-weight:700;margin-bottom:8px;font-size:13px">2018 Governor Vote</div>' +
+                    '<div style="font-size:11px;font-weight:700;color:#cc0000;margin-bottom:3px;">&#9632; Republican</div>' +
+                    '<div style="height:14px;width:170px;border-radius:3px;margin-bottom:3px;' +
+                         'background:linear-gradient(to right,#ffffff,#cc0000);' +
+                         'border:1px solid rgba(0,0,0,0.1)"></div>' +
+                    '<div style="display:flex;justify-content:space-between;width:170px;font-size:10px;color:#666;margin-bottom:8px">' +
+                         '<span>Low majority</span><span>High majority</span></div>' +
+                    '<div style="font-size:11px;font-weight:700;color:#0033cc;margin-bottom:3px;">&#9632; Democrat</div>' +
+                    '<div style="height:14px;width:170px;border-radius:3px;margin-bottom:3px;' +
+                         'background:linear-gradient(to right,#ffffff,#0033cc);' +
+                         'border:1px solid rgba(0,0,0,0.1)"></div>' +
+                    '<div style="display:flex;justify-content:space-between;width:170px;font-size:10px;color:#666">' +
+                         '<span>Low majority</span><span>High majority</span></div>';
+                return div;
+            }};
+            legend.addTo(map);
+        }})();
+        </script>
+        """
+        return ui.HTML(gov18_html)
 
 
 app = App(app_ui, server)
