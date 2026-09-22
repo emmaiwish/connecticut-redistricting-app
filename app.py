@@ -429,6 +429,27 @@ app_ui = ui.page_fillable(
             .export-btn-row {
                 margin-top: 8px;
             }
+                      
+            /* Site credit */
+            .site-credit {
+                position: fixed;
+                right: 12px;
+                top: 10px;
+                z-index: 2000;
+                font-size: 13px;
+                color: #777;
+                pointer-events: auto;
+            }
+                      
+            .site-credit a {
+                color: #555;
+                font-weight: 600;
+                text-decoration: none;
+            }      
+            .site-credit a:hover {
+                color: #222;
+                text-decoration: underline;        
+            }          
         """),
         # ----------------------------------------------------------------
         # Static map bootstrap
@@ -531,6 +552,14 @@ app_ui = ui.page_fillable(
             }}, 100);
         }});
         """),
+    ),
+    ui.tags.div(
+        ui.HTML(
+          'Designed and deployed by '
+          '<a href="https://www.linkedin.com/in/emma-wishneski" '
+         'target="_blank" rel="noopener noreferrer">Emma Wishneski</a>'
+       ),
+       class_="site-credit",
     ),
     ui.navset_tab(
         # ============================================================
