@@ -3,7 +3,11 @@
 An interactive web application for exploring Connecticut municipal redistricting, demographic characteristics, voter registration, and population patterns.
 
 ## Developed by Emma Wishneski
-**University of Connecticut, Class of 2026**
+**University of Connecticut, Class of 2026 Graduate**  
+with **Dual Degrees in Applied Data Analysis & Political Science**  
+Concentration in American Political Representation  
+Minor in Geographic Information Science (GIS)  
+
 
 ## About the Project
 
@@ -102,7 +106,20 @@ Changes pushed to the `Main` branch automatically trigger a new deployment throu
 
 ## Development
 
+This application was designed and developed by **Emma Wishneski**, a University of Connecticut 2026 graduate in Applied Data Analysis and Political Science with a minor in Geographic Information Science (GIS).
+
+Application development included data processing, geographic analysis, interactive mapping, user interface development, district-level demographic aggregation, compactness analysis, and deployment.
+
 **Application development and implementation:** Emma Wishneski  
 **Faculty collaborator:** Professor Jeffery Ladewig, Political Science Department, University of Connecticut
 
 This application was developed as a tool for exploring Connecticut municipal redistricting and the geographic and demographic characteristics associated with potential district configurations.
+
+## Contact
+
+**Emma Wishneski**  
+Applied Data Analysis & Political Science | GIS
+
+- **LinkedIn:** [Emma Wishneski](www.linkedin.com/in/emma-wishneski)
+- **GitHub:** [emmaiwish](https://github.com/emmaiwish)
+- **Email:** [Wishneski.emma@gmail.com](mailto:wishneski.emma@email.com)
