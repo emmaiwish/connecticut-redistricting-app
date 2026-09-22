@@ -2,8 +2,8 @@
 
 An interactive web application for exploring Connecticut municipal redistricting, demographic characteristics, voter registration, and population patterns.
 
-**Developed by Emma Wishneski**  
-University of Connecticut, Class of 2026
+## Developed by Emma Wishneski
+**University of Connecticut, Class of 2026**
 
 ## About the Project
 
