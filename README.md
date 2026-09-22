@@ -13,7 +13,7 @@ The application allows users to create hypothetical districts by assigning Conne
 
 Additional maps provide statewide context through visualizations of voter registration and population across Connecticut municipalities.
 
-This project was developed as a Capstone project for the Unniversity of Connecticut's Applied Data Analysis program. 
+This project was developed as a Capstone project for the University of Connecticut's Applied Data Analysis program. 
 
 ## Live Application
 
