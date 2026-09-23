@@ -608,7 +608,7 @@ app_ui = ui.page_fillable(
                         ),
                         class_="export-btn-row",
                     ),
-                    width=340,
+                    width=480,
                 ),
                 ui.div(
                     ui.tags.div(id="map"),
