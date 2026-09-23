@@ -555,7 +555,7 @@ app_ui = ui.page_fillable(
     ),
     ui.tags.div(
         ui.HTML(
-          'Designed and deployed by '
+          'Designed, Developed, and Deployed by '
           '<a href="https://www.linkedin.com/in/emma-wishneski" '
          'target="_blank" rel="noopener noreferrer">Emma Wishneski</a>'
        ),
