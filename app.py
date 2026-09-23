@@ -321,10 +321,10 @@ app_ui = ui.page_fillable(
             #gov18map { width: 100%; height: 100%; }
             body { margin: 0; }
 
-            .tab-pane[data-value="Voter Registration Heatmap"],
-            .tab-pane[data-value="Population Map"] 
-            .tab-pane[data-value="Non-White Population"],
-            .tab-pane[data-value="2018 Governor Vote"] {
+            .tab-pane[data-value="Voter Registration Map"],
+            .tab-pane[data-value="Population Density Map"] 
+            .tab-pane[data-value="Diverse Population Map"],
+            .tab-pane[data-value="2018 Governor Vote Map"] {
                 overflow: visible !important;
                 height: calc(100vh - 80px);
             }
@@ -618,20 +618,20 @@ app_ui = ui.page_fillable(
             ),
         ),
         # ============================================================
-        # TAB 2 – Voter Registration Heatmap
+        # TAB 2 – Voter Registration Map
         # ============================================================
         ui.nav_panel(
-            "Voter Registration Heatmap",
+            "Voter Registration Map",
             ui.div(
                 ui.output_ui("heatmap_ui"),
                 class_="heatmap-wrapper",
             ),
         ),
          # ============================================================
-        # TAB 3 – Population Map
+        # TAB 3 – Population Density Map
         # ============================================================
         ui.nav_panel(
-            "Population Map",
+            "Population Density Map",
             ui.div(
                 ui.output_ui("popdensity_ui"),
                 class_="heatmap-wrapper",
@@ -641,17 +641,17 @@ app_ui = ui.page_fillable(
         # TAB 4 – Non-White Population Percent
         # ============================================================
         ui.nav_panel(
-            "Non-White Population",
+            "Diverse Population Map",
             ui.div(
                 ui.output_ui("race_ui"),
                 class_="heatmap-wrapper",
             ),
         ),
         # ============================================================
-        # TAB 5 – 2018 Governor Vote
+        # TAB 5 – 2018 Governor Vote Map
         # ============================================================
         ui.nav_panel(
-            "2018 Governor Vote",
+            "2018 Governor Vote Map",
             ui.div(
                 ui.output_ui("gov18_ui"),
                 class_="heatmap-wrapper",
@@ -943,7 +943,7 @@ def server(input, output, session):
         yield buf.read()
 
     # ----------------------------------------------------------------
-    # Voter Registration Heatmap
+    # Voter Registration Map
     # ----------------------------------------------------------------
     @output
     @render.ui
@@ -1166,7 +1166,7 @@ def server(input, output, session):
         return ui.HTML(popdensity_html)
 
     # ----------------------------------------------------------------
-    # Non-White / White Population Map
+    # Non-White / White Population Density Map
     # ----------------------------------------------------------------
     @output
     @render.ui
