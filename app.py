@@ -618,17 +618,7 @@ app_ui = ui.page_fillable(
             ),
         ),
         # ============================================================
-        # TAB 2 – Voter Registration Map
-        # ============================================================
-        ui.nav_panel(
-            "Voter Registration Map",
-            ui.div(
-                ui.output_ui("heatmap_ui"),
-                class_="heatmap-wrapper",
-            ),
-        ),
-         # ============================================================
-        # TAB 3 – Population Density Map
+        # TAB 2 – Population Density Map
         # ============================================================
         ui.nav_panel(
             "Population Density Map",
@@ -638,22 +628,32 @@ app_ui = ui.page_fillable(
             ),
         ),
         # ============================================================
-        # TAB 4 – Non-White Population Percent
+        # TAB 3 – Voter Registration Map
         # ============================================================
         ui.nav_panel(
-            "Diverse Population Map",
+            "Voter Registration Map",
             ui.div(
-                ui.output_ui("race_ui"),
+                ui.output_ui("heatmap_ui"),
                 class_="heatmap-wrapper",
             ),
         ),
         # ============================================================
-        # TAB 5 – 2018 Governor Vote Map
+        # TAB 4 – 2018 Governor Vote Map
         # ============================================================
         ui.nav_panel(
             "2018 Governor Vote Map",
             ui.div(
                 ui.output_ui("gov18_ui"),
+                class_="heatmap-wrapper",
+            ),
+        ),
+        # ============================================================
+        # TAB 5 – Non-White Population Percent
+        # ============================================================
+        ui.nav_panel(
+            "Diverse Population Map",
+            ui.div(
+                ui.output_ui("race_ui"),
                 class_="heatmap-wrapper",
             ),
         ),
