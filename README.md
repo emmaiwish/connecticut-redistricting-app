@@ -65,17 +65,17 @@ A separate statewide map visualizes **2020 Democratic and Republican voter regis
 
 The visualization displays the relative Democratic or Republican registration advantage for each municipality, with interactive tooltips providing additional registration information.
 
-### Diverse Population Map
-
-The application includes an interactive heatmap visualizing the **non-white population across Connecticut municipalities**.
-
-Municipalities are shaded according to the proportion of the population identified as non-white, allowing users to explore the geographic distribution of racial diversity across the state.
-
 ### 2018 Governor Vote Map
 
 The application includes an interactive heatmap visualizing **2018 Connecticut gubernatorial election results** by municipality.
 
 Municipalities are shaded according to the Democratic or Republican vote advantage, allowing users to explore geographic patterns in the 2018 governor's race across Connecticut.
+
+### Diverse Population Map
+
+The application includes an interactive heatmap visualizing the **non-white population across Connecticut municipalities**.
+
+Municipalities are shaded according to the proportion of the population identified as non-white, allowing users to explore the geographic distribution of racial diversity across the state.
 
 ## Data
 
