@@ -83,7 +83,7 @@ The application combines Connecticut municipal geographic boundaries with town-l
 
 Municipal boundaries are based on **2025 U.S. Census Bureau TIGER/Line county subdivision geographic data for Connecticut**.
 
-Town-level demographic, population, and voter registration data used by the application were provided by Professor Jeffery Ladewig of the University of Connecticut.
+Town-level demographic, population, and voter registration data used by the application were provided by Professor Jeffrey Ladewig of the University of Connecticut.
 
 ## Technology
 
@@ -123,7 +123,7 @@ This application was designed and developed by **Emma Wishneski**, a University 
 Application development included data processing, geographic analysis, interactive mapping, user interface development, district-level demographic aggregation, compactness analysis, and deployment.
 
 **Application development and implementation:** Emma Wishneski  
-**Faculty collaborator:** Professor Jeffery Ladewig, Political Science Department, University of Connecticut
+**Faculty collaborator:** Professor Jeffrey Ladewig, Political Science Department, University of Connecticut
 
 This application was developed as a tool for exploring Connecticut municipal redistricting and the geographic and demographic characteristics associated with potential district configurations.
 
