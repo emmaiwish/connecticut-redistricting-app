@@ -322,7 +322,7 @@ app_ui = ui.page_fillable(
             body { margin: 0; }
 
             .tab-pane[data-value="Voter Registration Map"],
-            .tab-pane[data-value="Population Density Map"] 
+            .tab-pane[data-value="Population Density Map"], 
             .tab-pane[data-value="Diverse Population Map"],
             .tab-pane[data-value="2018 Governor Vote Map"] {
                 overflow: visible !important;
