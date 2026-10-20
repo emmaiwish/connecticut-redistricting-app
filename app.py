@@ -449,7 +449,33 @@ app_ui = ui.page_fillable(
             .site-credit a:hover {
                 color: #222;
                 text-decoration: underline;        
-            }          
+            } 
+            
+            /* --- About page --- */
+            .about-page {
+                max-width: 820px;
+                margin: 0 auto;
+                padding: 24px 20px 48px 20px;
+                height: calc(100vh - 80px);
+                overflow-y: auto;
+                line-height: 1.6;
+                color: #333;
+            }
+            .about-page h2 { margin-bottom: 12px; }
+            .about-page h4 {
+                margin-top: 28px;
+                margin-bottom: 8px;
+                padding-bottom: 4px;
+                border-bottom: 1px solid #dee2e6;
+            }
+            .about-page ul { padding-left: 20px; }
+            .about-page .about-note {
+                background: #f8f9fa;
+                border-left: 4px solid #377eb8;
+                padding: 8px 12px;
+                border-radius: 3px;
+                font-size: 0.93em;
+            }         
         """),
         # ----------------------------------------------------------------
         # Static map bootstrap
