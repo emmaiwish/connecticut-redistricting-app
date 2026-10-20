@@ -558,7 +558,7 @@ app_ui = ui.page_fillable(
 
             /* --- About page --- */
             .about-page {
-                max-width: 820px;
+                max-width: 1200px;
                 margin: 0 auto;
                 padding: 24px 20px 48px 20px;
                 height: calc(100vh - 80px);
