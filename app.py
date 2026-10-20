@@ -399,10 +399,8 @@ about_content = ui.div(
         ),
         " \u00b7 ",
         ui.tags.a(
-            "GitHub",
-            href="https://github.com/emmaiwish",
-            target="_blank",
-            rel="noopener noreferrer",
+            "Wishneski.emma@gmail.com",
+            href="mailto:Wishneski.emma@gmail.com",
         ),
     ),
     class_="about-page",
