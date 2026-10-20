@@ -302,6 +302,111 @@ def compute_compactness_scores(current_geojson):
 
     return scores
 
+about_content = ui.div(
+    ui.h2("About the Connecticut Redistricting Tool"),
+    ui.p(
+        "The Connecticut Redistricting Tool is an interactive application that lets you "
+        "draw your own five-district congressional map of Connecticut. Assign towns to "
+        "districts and see how your choices affect population, political composition, "
+        "demographics, and geographic compactness."
+    ),
+ 
+    # ---------------- Using the tool ----------------
+    ui.h4("Using the Tool"),
+    ui.p(
+        "In the Redistricting Tool tab, pick a district from the dropdown and click towns "
+        "on the map to assign them. Click an assigned town again to remove it. The summary "
+        "panel updates as you draw, showing each district's population totals, "
+        "demographic and voter data, and Polsby-Popper compactness score. You can export "
+        "your results as a CSV. The other tabs map population, voter registration, "
+        "2018 governor's race results, and racial diversity across Connecticut."
+    ),
+    ui.p(
+        "Polsby-Popper compactness ranges from 0 to 1. Higher scores mean a more compact "
+        "shape, and a perfect circle scores 1.",
+    ),
+    ui.div(
+        ui.tags.strong("Note: "),
+        "This tool assigns whole towns, not census blocks or precincts. Maps built here "
+        "are educational simulations, not legally valid redistricting plans. Real "
+        "districts can and do split towns to meet legal requirements.",
+        class_="about-note",
+    ),
+ 
+    # ---------------- CT redistricting info ----------------
+    ui.h4("Redistricting in Connecticut"),
+    ui.p(
+        "Apportionment is the process of dividing the 435 seats in the U.S. House of "
+        "Representatives among the states after each census. Redistricting is the "
+        "redrawing of district lines within a state afterward, so that districts have "
+        "nearly equal populations (\u201cone person, one vote\u201d) and comply with federal "
+        "law, including the Voting Rights Act."
+    ),
+    ui.p(
+        "Connecticut kept its five congressional districts after the 2020 Census. The "
+        "state's population was 3,605,944, which makes the ideal district size about "
+        "721,189 people."
+    ),
+    ui.p("Connecticut's process has three stages:"),
+    ui.tags.ul(
+        ui.tags.li(
+            "The General Assembly, advised by a bipartisan Reapportionment Committee, "
+            "has the first chance. A plan needs a two-thirds vote in each chamber."
+        ),
+        ui.tags.li(
+            "If the legislature does not adopt a plan, a nine-member Reapportionment "
+            "Commission takes over."
+        ),
+        ui.tags.li(
+            "If the commission cannot agree either, the Connecticut Supreme Court steps in."
+        ),
+    ),
+    ui.p(
+        "That last stage happened after the 2020 Census. The commission missed its "
+        "deadlines, and in December 2021 the Supreme Court appointed a special master, "
+        "Stanford law professor Nathaniel Persily, to draw the map. The court told him to "
+        "start from the existing districts and not to consider political data. It adopted "
+        "his plan on February 10, 2022, and it has been used for Connecticut's "
+        "congressional elections since."
+    ),
+ 
+    # ---------------- Data ----------------
+    ui.h4("Data and Technology"),
+    ui.p(
+        "Town boundaries come from the 2025 U.S. Census Bureau TIGER/Line county "
+        "subdivision files. Town-level demographic, population, and voter data were "
+        "provided by Professor Jeffrey Ladewig of the University of Connecticut. The "
+        "app is built with Python, Shiny for Python, GeoPandas, pandas, and Leaflet, "
+        "with OpenStreetMap tiles."
+    ),
+ 
+    # ---------------- Creator ----------------
+    ui.h4("About the Creator"),
+    ui.p(
+        "This site was designed, developed, and deployed by Emma Wishneski, a 2026 "
+        "University of Connecticut graduate with dual degrees in Applied Data Analysis "
+        "and Political Science, a concentration in American political representation, "
+        "and a minor in Geographic Information Science (GIS). It began as her capstone "
+        "project, completed under the faculty advisement of Professor Jeffrey W. Ladewig "
+        "of UConn's Political Science Department. "
+    ),
+    ui.p(
+        ui.tags.a(
+            "LinkedIn",
+            href="https://www.linkedin.com/in/emma-wishneski",
+            target="_blank",
+            rel="noopener noreferrer",
+        ),
+        " \u00b7 ",
+        ui.tags.a(
+            "GitHub",
+            href="https://github.com/emmaiwish",
+            target="_blank",
+            rel="noopener noreferrer",
+        ),
+    ),
+    class_="about-page",
+)
 
 # ---------------------------------------------------------------------------
 # UI
@@ -450,7 +555,7 @@ app_ui = ui.page_fillable(
                 color: #222;
                 text-decoration: underline;        
             } 
-            
+
             /* --- About page --- */
             .about-page {
                 max-width: 820px;
@@ -688,6 +793,7 @@ app_ui = ui.page_fillable(
         # ============================================================
         ui.nav_panel(
             "About",
+            about_content,
         ),
     ),
 )
